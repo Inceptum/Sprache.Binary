@@ -16,8 +16,8 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Parse result <see cref="IResult{T}"/></returns>
         public static IResult<T> TryParse<T>(this Parser<T> parser, byte[] input)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (input == null) throw new ArgumentNullException("input");
 
             return parser(new Input(input));
         }
@@ -32,8 +32,8 @@ namespace Inceptum.Sprache.Binary
         /// <exception cref="ParseException">Throws exeption if parse was not successfull</exception>
         public static T Parse<T>(this Parser<T> parser, byte[] input)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
-            if (input == null) throw new ArgumentNullException(nameof(input));
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (input == null) throw new ArgumentNullException("input");
 
             var result = parser.TryParse(input);
 

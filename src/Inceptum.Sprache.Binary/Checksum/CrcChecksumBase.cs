@@ -9,6 +9,8 @@ namespace Inceptum.Sprache.Binary.Checksum
     public abstract class CrcChecksumBase<T> : IChecksum
         where T : struct
     {
+        private static readonly int m_SizeOf = Marshal.SizeOf(typeof(T));
+
         byte[] IChecksum.Calculate(byte[] bytes)
         {
             var crc = Calculate(bytes);
@@ -16,7 +18,10 @@ namespace Inceptum.Sprache.Binary.Checksum
             return result;
         }
 
-        int IChecksum.Length => Marshal.SizeOf<T>();
+        int IChecksum.Length
+        {
+            get { return m_SizeOf; }
+        }
 
         protected abstract T Calculate(byte[] bytes);
 

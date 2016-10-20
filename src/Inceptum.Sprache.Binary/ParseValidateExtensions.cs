@@ -22,7 +22,7 @@ namespace Inceptum.Sprache.Binary
                 {
                     var bytes = r.Value.ToArray();
                     if (bytes.Length != 2)
-                        return Result.Failure<UInt16>(i, $"expected 2 bytes but was ${bytes.Length}", new string[] { "0..999" });
+                        return Result.Failure<UInt16>(i, string.Format("expected 2 bytes but was ${0}", bytes.Length), new string[] { "0..999" });
 
                     return Result.Success(BitConverter.ToUInt16(bytes, 0), r.Remainder);
                 });
@@ -39,7 +39,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<ushort> Range(this Parser<ushort> parser, ushort min, ushort max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<uint> Range(this Parser<uint> parser, uint min, uint max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<ulong> Range(this Parser<ulong> parser, ulong min, ulong max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<short> Range(this Parser<short> parser, short min, short max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<int> Range(this Parser<int> parser, int min, int max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Inceptum.Sprache.Binary
         /// <returns>Not changed instance of parser for further chaining</returns>
         public static Parser<long> Range(this Parser<long> parser, long min, long max)
         {
-            return Validate(parser, val => min <= val && val <= max, $"between {min} and {max}");
+            return Validate(parser, val => min <= val && val <= max, string.Format("between {0} and {1}", min, max));
         }
 
         public static Parser<T> Validate<T>(this Parser<T> parser, Func<T, bool> predicate, string description)

@@ -15,7 +15,7 @@ namespace Inceptum.Sprache.Binary.Tests.Checksum
             var crc = checksum.Calculate(input);
             var actual = BitConverter.ToUInt16(crc, 0);
 
-            Assert.That(actual, Is.EqualTo(expected), $"expected 0x{expected:X} but was 0x{actual:X}");
+            Assert.That(actual, Is.EqualTo(expected), string.Format("expected 0x{0:X} but was 0x{1:X}", expected, actual));
         }
 
         [Test]

@@ -38,27 +38,23 @@ namespace Inceptum.Sprache.Binary
     internal class Result<T> : IResult<T>
     {
         private readonly T m_Value;
-        private readonly IInput m_Remainder;
-        private readonly string m_Message;
-        private readonly IEnumerable<string> m_Expectations;
-        private readonly bool m_WasSuccessful ;
 
         public Result(T value, IInput remainder)
         {
             m_Value = value;
-            m_Remainder = remainder;
-            m_WasSuccessful = true;
+            Remainder = remainder;
+            WasSuccessful = true;
         }
 
         public Result(IInput remainder, string message, IEnumerable<string> expectations)
         {
-            m_Remainder = remainder;
-            m_Message = message;
-            m_Expectations = expectations;
-            m_WasSuccessful = false;
+            Remainder = remainder;
+            Message = message;
+            Expectations = expectations;
+            WasSuccessful = false;
         }
 
-        public bool WasSuccessful => m_WasSuccessful;
+        public bool WasSuccessful { get; private set; }
 
         public T Value
         {
@@ -70,21 +66,24 @@ namespace Inceptum.Sprache.Binary
                 return m_Value;
             }
         }
-        public string Message => m_Message;
-        public IInput Remainder => m_Remainder;
-        public IEnumerable<string> Expectations => m_Expectations;
+
+        public string Message { get; private set; }
+
+        public IInput Remainder { get; private set; }
+
+        public IEnumerable<string> Expectations { get; private set; }
 
         public override string ToString()
         {
             if (WasSuccessful)
-                return $"Successful parsing of {Value}.";
+                return string.Format("Successful parsing of {0}.", Value);
 
             var expMsg = "";
 
             if (Expectations.Any())
                 expMsg = " expected " + Expectations.Aggregate((e1, e2) => e1 + " or " + e2);
             
-            return $"Parsing failure: {Message};{expMsg} ({Remainder});";
+            return string.Format("Parsing failure: {0};{1} ({2});", Message, expMsg, Remainder);
         }
     }
 }

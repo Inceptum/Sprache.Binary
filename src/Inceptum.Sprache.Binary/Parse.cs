@@ -18,25 +18,25 @@ namespace Inceptum.Sprache.Binary
             Func<T, U, V> projector)
         {
 
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
-            if (projector == null) throw new ArgumentNullException(nameof(projector));
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (projector == null) throw new ArgumentNullException("projector");
 
             return parser.Then(t => selector(t).Select(u => projector(t, u)));
         }
 
         public static Parser<U> Select<T, U>(this Parser<T> parser, Func<T, U> convert)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
-            if (convert == null) throw new ArgumentNullException(nameof(convert));
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (convert == null) throw new ArgumentNullException("convert");
 
             return parser.Then(t => Return(convert(t)));
         }
 
         public static Parser<U> Then<T, U>(this Parser<T> first, Func<T, Parser<U>> second)
         {
-            if (first == null) throw new ArgumentNullException(nameof(first));
-            if (second == null) throw new ArgumentNullException(nameof(second));
+            if (first == null) throw new ArgumentNullException("first");
+            if (second == null) throw new ArgumentNullException("second");
 
             return i => first(i).IfSuccess(s => second(s.Value)(s.Remainder));
         }
@@ -79,7 +79,7 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<IEnumerable<T>> Once<T>(this Parser<T> parser)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (parser == null) throw new ArgumentNullException("parser");
 
             return parser.Select(r => (IEnumerable<T>)new[] { r });
         }
@@ -96,7 +96,7 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<IEnumerable<T>> Repeat<T>(this Parser<T> parser, int minimumCount, int maximumCount)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (parser == null) throw new ArgumentNullException("parser");
 
             return i =>
             {
@@ -113,8 +113,8 @@ namespace Inceptum.Sprache.Binary
                             ? "end of input"
                             : r.Remainder.Current.ToString();
 
-                        var msg = $"Unexpected '{what}'";
-                        var exp = $"'{string.Join(", ", r.Expectations)}' between {minimumCount} and {maximumCount} times, but found {n}";
+                        var msg = string.Format("Unexpected '{0}'", what);
+                        var exp = string.Format("'{0}' between {1} and {2} times, but found {3}", string.Join(", ", r.Expectations), minimumCount, maximumCount, n);
 
                         return Result.Failure<IEnumerable<T>>(i, msg, new[] { exp });
                     }
@@ -133,12 +133,12 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<byte> Byte(byte b)
         {
-            return Byte(bt => bt == b, $"{b:X}");
+            return Byte(bt => bt == b, string.Format("{0:X}", b));
         }
 
         public static Parser<byte> Byte(byte min, byte max)
         {
-            return Byte(bt => min <= bt && bt <= max , $"between {min:X} and {max:X}");
+            return Byte(bt => min <= bt && bt <= max , string.Format("between {0:X} and {1:X}", min, max));
         }
 
         public static Parser<byte> Byte()
@@ -148,8 +148,8 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<byte> Byte(Predicate<byte> predicate, string description)
         {
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-            if (description == null) throw new ArgumentNullException(nameof(description));
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (description == null) throw new ArgumentNullException("description");
 
             return i =>
             {
@@ -158,7 +158,7 @@ namespace Inceptum.Sprache.Binary
                     if (predicate(i.Current))
                         return Result.Success(i.Current, i.Advance());
 
-                    return Result.Failure<byte>(i, $"unexpected '{i.Current:X}'", new[] { description });
+                    return Result.Failure<byte>(i, string.Format("unexpected '{0:X}'", i.Current), new[] { description });
                 }
 
                 return Result.Failure<byte>(i, "Unexpected end of input reached", new[] { description });
@@ -167,7 +167,7 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<T> WithChecksum<T>(this Parser<T> parser, IChecksum checksum)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (parser == null) throw new ArgumentNullException("parser");
 
             return i =>
             {
@@ -186,7 +186,7 @@ namespace Inceptum.Sprache.Binary
                                     var actual = c.Value.ToArray();
                                     return expected.SequenceEqual(actual)
                                         ? Result.Success(b.Value, c.Remainder)
-                                        : Result.Failure<T>(b.Remainder, "invalid checksum", new[] {$"expected checksum {BitConverter.ToString(expected)} but was {BitConverter.ToString(actual)}"});
+                                        : Result.Failure<T>(b.Remainder, "invalid checksum", new[] { string.Format("expected checksum {0} but was {1}", BitConverter.ToString(expected), BitConverter.ToString(actual)) });
                                 }
                             );
                     });
@@ -200,7 +200,7 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<IEnumerable<T>> Many<T>(this Parser<T> parser)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (parser == null) throw new ArgumentNullException("parser");
 
             return i =>
             {
@@ -224,9 +224,9 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<T> End<T>(this Parser<T> parser)
         {
-            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (parser == null) throw new ArgumentNullException("parser");
 
-            return i => parser(i).IfSuccess(s => s.Remainder.AtEnd ? s : Result.Failure<T>(s.Remainder, $"unexpected '{s.Remainder.Current:X}'", new[] { "end of input" }));
+            return i => parser(i).IfSuccess(s => s.Remainder.AtEnd ? s : Result.Failure<T>(s.Remainder, string.Format("unexpected '{0:X}'", s.Remainder.Current), new[] { "end of input" }));
         }
 
         public static Parser<T> XOr<T>(this Parser<T> first, Parser<T> second)
@@ -304,7 +304,7 @@ namespace Inceptum.Sprache.Binary
         private static Parser<T> parse<T>(Func<byte[], int, T> converter)
             where T : struct
         {
-            return from bts in Parse.Bytes(Marshal.SizeOf<T>())
+            return from bts in Parse.Bytes(Marshal.SizeOf(typeof(T)))
                    let bfr = bts.ToArray()
                    select converter(bfr, 0);
         }
