@@ -57,6 +57,12 @@ namespace Inceptum.Sprache.Binary
             };
         }
 
+        public static Parser<U> Return<T, U>(this Parser<T> parser, U value)
+        {
+            if (parser == null) throw new ArgumentNullException("parser");
+            return parser.Select(t => value);
+        }
+
         public static Parser<T> Return<T>(T value)
         {
             return i => Result.Success(value, i);
@@ -192,6 +198,7 @@ namespace Inceptum.Sprache.Binary
                     });
             };
         }
+
         public static Parser<IEnumerable<T>> XMany<T>(this Parser<T> parser)
         {
 
@@ -222,11 +229,37 @@ namespace Inceptum.Sprache.Binary
             };
         }
 
+        /// <summary>
+        /// Parse end of input
+        /// </summary>
         public static Parser<T> End<T>(this Parser<T> parser)
         {
             if (parser == null) throw new ArgumentNullException("parser");
 
             return i => parser(i).IfSuccess(s => s.Remainder.AtEnd ? s : Result.Failure<T>(s.Remainder, string.Format("unexpected '{0:X}'", s.Remainder.Current), new[] { "end of input" }));
+        }
+
+        /// <summary>
+        /// Parse first, if it succeeds, return first, otherwise try second.
+        /// </summary>
+        public static Parser<T> Or<T>(this Parser<T> first, Parser<T> second)
+        {
+            if (first == null) throw new ArgumentNullException("first");
+            if (second == null) throw new ArgumentNullException("second");
+
+            return i =>
+            {
+                var fr = first(i);
+                if (!fr.WasSuccessful)
+                {
+                    return second(i).IfFailure(sf => DetermineBestError(fr, sf));
+                }
+
+                if (fr.Remainder.Equals(i))
+                    return second(i).IfFailure(sf => fr);
+
+                return fr;
+            };
         }
 
         public static Parser<T> XOr<T>(this Parser<T> first, Parser<T> second)
@@ -251,6 +284,32 @@ namespace Inceptum.Sprache.Binary
 
                 return fr;
             };
+        }
+
+        /// <summary>
+        /// Attempt parsing only if the <paramref name="except"/> parser fails
+        /// </summary>
+        public static Parser<T> Except<T, U>(this Parser<T> parser, Parser<U> except)
+        {
+            if (parser == null) throw new ArgumentNullException("parser");
+            if (except == null) throw new ArgumentNullException("except");
+
+            return i =>
+            {
+                var r = except(i);
+                if (r.WasSuccessful)
+                    return Result.Failure<T>(i, "Excepted parser succeeded.", new[] { "other than the excepted input" });
+                return parser(i);
+            };
+        }
+
+        /// <summary>
+        /// Parse a sequence of items until a terminator is reached
+        /// </summary>
+        /// <returns>Parsed sequence, discarding the terminator</returns>
+        public static Parser<IEnumerable<T>> Until<T, U>(this Parser<T> parser, Parser<U> until)
+        {
+            return parser.Except(until).Many().Then(r => until.Return(r));
         }
 
         static IResult<T> DetermineBestError<T>(IResult<T> firstFailure, IResult<T> secondFailure)

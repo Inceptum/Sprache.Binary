@@ -141,5 +141,15 @@ namespace Inceptum.Sprache.Binary.Tests
 
             AssertHelpers.FailAt(parser, new byte[] {0x01, 0x01, 0x01, 0xFF, 0x02}, 2);
         }
+
+        [Test]
+        public void ParseUntilStopsOnTerminator()
+        {
+            var parser =
+                from a in Parse.Byte().Until(Parse.Byte(0x00))
+                select a;
+
+            AssertHelpers.Success(parser, new byte[] { 0x31, 0x2e, 0x00 }, new byte[] { 0x31, 0x2e });
+        }
     }
 }
