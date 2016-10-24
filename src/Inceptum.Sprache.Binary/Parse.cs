@@ -68,19 +68,37 @@ namespace Inceptum.Sprache.Binary
             return i => Result.Success(value, i);
         }
 
+        /// <summary>
+        /// Parse number of bytes
+        /// </summary>
+        /// <param name="length">Number of bytes to read</param>
+        public static Parser<IEnumerable<byte>> Bytes(int length)
+        {
+            return Byte().Repeat(length);
+        }
+
+        /// <summary>
+        /// Convert a stream of bytes to an array.
+        /// </summary>
+        public static Parser<byte[]> Bytes(this Parser<IEnumerable<byte>> bytes)
+        {
+            return bytes.Select(b => b.ToArray());
+        }
+
+        /// <summary>
+        /// Parse any of provided bytes
+        /// </summary>
         public static Parser<byte> Bytes(params byte[] bytes)
         {
             return Byte(bytes.Contains, string.Join("|", bytes.Select(b => b.ToString("X"))));
         }
 
+        /// <summary>
+        /// Parse a secuqnce of bytes
+        /// </summary>
         public static Parser<IEnumerable<byte>> Sequence(params byte[] bytes)
         {
             return bytes.Select(Byte).Aggregate(Return(Enumerable.Empty<byte>()), (a, p) => a.Concat(p.Once()));
-        }
-
-        public static Parser<IEnumerable<byte>> Bytes(int length)
-        {
-            return Byte().Repeat(length);
         }
 
         public static Parser<IEnumerable<T>> Once<T>(this Parser<T> parser)
@@ -201,7 +219,7 @@ namespace Inceptum.Sprache.Binary
 
         public static Parser<IEnumerable<T>> XMany<T>(this Parser<T> parser)
         {
-
+                
             return parser.Many().Then(m => parser.Once().XOr(Return(m)));
         }
 
