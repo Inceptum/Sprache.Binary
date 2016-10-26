@@ -47,6 +47,10 @@ namespace Inceptum.Sprache.Binary
             return i =>
             {
                 var start = i.Position;
+
+                if (i.Source.Length < start + length)
+                    return Result.Failure<T>(i, "Length outside of input bounds", new []{ string.Format("{0} of bytes starting from {1}", length, start) });
+
                 var r = parser(new Input(i.Source, i.Position, length));
                 var end = r.Remainder.Position;
                 if (r.WasSuccessful)
