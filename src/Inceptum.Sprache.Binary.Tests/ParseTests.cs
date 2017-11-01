@@ -154,6 +154,18 @@ namespace Inceptum.Sprache.Binary.Tests
         }
 
         [Test]
+        public void FailsIfLengthIsBeyondEndOfInput()
+        {
+            var parser =
+                from a in Parse.Byte(0x01).Once()
+                from b in Parse.Byte(0x02).Once()
+                from c in Parse.Bytes(4)
+                select a.Concat(b).Concat(c);
+
+            AssertHelpers.FailAt(parser, new byte[] { 0x01, 0x02, 0x03 }, 2);
+        }
+
+        [Test]
         public void ParseUntilStopsOnTerminator()
         {
             var parser =

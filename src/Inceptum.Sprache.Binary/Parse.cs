@@ -137,11 +137,8 @@ namespace Inceptum.Sprache.Binary
 
                     if (!r.WasSuccessful && n < minimumCount)
                     {
-                        var what = r.Remainder.AtEnd
-                            ? "end of input"
-                            : r.Remainder.Current.ToString();
+                        var msg = string.Format("Unexpected '{0}' at {1}", r.Remainder.AtEnd ? "end of input" : r.Remainder.Current.ToString("X"), r.Remainder.Position) ;
 
-                        var msg = string.Format("Unexpected '{0}'", what);
                         var exp = string.Format("'{0}' between {1} and {2} times, but found {3}", string.Join(", ", r.Expectations), minimumCount, maximumCount, n);
 
                         return Result.Failure<IEnumerable<T>>(i, msg, new[] { exp });
