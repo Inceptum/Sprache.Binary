@@ -132,6 +132,57 @@ namespace Inceptum.Sprache.Binary.Tests
         }
 
         [Test]
+        public void AcceptsBytesAndReturnsStartAndIndex()
+        {
+            var parser =
+                from start in Parse.Index()
+                from a in Parse.Byte(0x01).Length(2).Once()
+                from b in Parse.Byte(0x02).Once()
+                from end in Parse.Index()
+                select new { start, end };
+
+            var result = parser.Parse(new byte[] {0x01, 0xFF, 0x02});
+            Assert.AreEqual(0, result.start);
+            Assert.AreEqual(3, result.end);
+        }
+
+        [Test]
+        public void AcceptsBytesAndReturnsSameIndex()
+        {
+            var parser =
+                from start in Parse.Index()
+                from end in Parse.Index()
+                select new { start, end };
+
+            var result = parser.Parse(new byte[] { 0x01, 0xFF, 0x02 });
+            Assert.AreEqual(0, result.start);
+            Assert.AreEqual(0, result.end);
+        }
+
+        [Test]
+        public void AcceptsBytesAndReturnsIndexesFromInitialIntput()
+        {
+            var byteWithIndexes =
+                from start in Parse.Index()
+                from value in Parse.Byte(0x01)
+                from end in Parse.Index()
+                select new { start, value, end };
+
+            var parser =
+                from items in byteWithIndexes.Repeat(3).End()
+                select items;
+
+            var result = parser.Parse(new byte[] { 0x01, 0x01, 0x01 }).ToArray();
+            Assert.AreEqual(3, result.Length);
+            Assert.AreEqual(0, result[0].start);
+            Assert.AreEqual(1, result[0].end);
+            Assert.AreEqual(1, result[1].start);
+            Assert.AreEqual(2, result[1].end);
+            Assert.AreEqual(2, result[2].start);
+            Assert.AreEqual(3, result[2].end);
+        }
+
+        [Test]
         public void FailsIfParserTriesToReadMoreThanLengthBytes()
         {
             var parser =

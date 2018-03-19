@@ -122,6 +122,11 @@ namespace Inceptum.Sprache.Binary
             return Repeat(parser, count, count);
         }
 
+        public static Parser<int> Index()
+        {
+            return i => Result.Success(i.Position, i);
+        }
+
         public static Parser<IEnumerable<T>> Repeat<T>(this Parser<T> parser, int minimumCount, int maximumCount)
         {
             if (parser == null) throw new ArgumentNullException("parser");
