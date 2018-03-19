@@ -122,7 +122,7 @@ namespace Inceptum.Sprache.Binary
             return Repeat(parser, count, count);
         }
 
-        public static Parser<int> Index()
+        internal static Parser<int> Index()
         {
             return i => Result.Success(i.Position, i);
         }
@@ -192,6 +192,25 @@ namespace Inceptum.Sprache.Binary
                 }
 
                 return Result.Failure<byte>(i, "Unexpected end of input reached", new[] { description });
+            };
+        }
+
+        public static Parser<Source<T>> WithSource<T>(this Parser<T> parser)
+        {
+            if (parser == null) throw new ArgumentNullException("parser");
+
+            return i =>
+            {
+                var start = i.Position;
+                var a = parser(i);
+                var end = a.Remainder.Position;
+
+                return a.IfSuccess(parseResult =>
+                {
+                    var sourceBytes = a.Remainder.Source.Skip(start).Take(end - start).ToArray();
+                    var parsedValue = parseResult.Value;
+                    return Result.Success(new Source<T>(parsedValue, sourceBytes), a.Remainder);
+                });
             };
         }
 

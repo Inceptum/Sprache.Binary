@@ -58,6 +58,7 @@
     <Compile Include="IInput.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="IResult.cs" />
+    <Compile Include="ISource.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="Parser.cs" />

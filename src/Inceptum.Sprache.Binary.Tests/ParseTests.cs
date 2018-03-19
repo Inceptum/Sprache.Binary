@@ -160,6 +160,26 @@ namespace Inceptum.Sprache.Binary.Tests
         }
 
         [Test]
+        public void WithSource()
+        {
+            var segment = 
+                from a in Parse.Byte(0x01).Length(2).Once()
+                from b in Parse.Byte(0x02).Once()
+                select a.Concat(b);
+
+            var parser =
+                from x in segment.WithSource().XMany().End()
+                select x;
+
+            var result = parser.Parse(new byte[] {0x01, 0xFF, 0x02, 0x01, 0xAF, 0x02 }).ToArray();
+
+            CollectionAssert.AreEqual(new byte[] {0x01, 0x02}, result[0].Value);
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0xFF, 0x02 }, result[0].Bytes);
+            CollectionAssert.AreEqual(new byte[] {0x01, 0x02}, result[1].Value);
+            CollectionAssert.AreEqual(new byte[] { 0x01, 0xAF, 0x02 }, result[1].Bytes);
+        }
+
+        [Test]
         public void AcceptsBytesAndReturnsIndexesFromInitialIntput()
         {
             var byteWithIndexes =
