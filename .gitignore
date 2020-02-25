@@ -109,3 +109,6 @@ packages
 /tmp/*
 
 src/*/logs
+
+.vs
+.ionide

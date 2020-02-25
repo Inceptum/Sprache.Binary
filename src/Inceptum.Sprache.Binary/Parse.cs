@@ -122,7 +122,7 @@ namespace Inceptum.Sprache.Binary
             return Repeat(parser, count, count);
         }
 
-        internal static Parser<int> Index()
+        public static Parser<int> Index()
         {
             return i => Result.Success(i.Position, i);
         }
